@@ -1,6 +1,6 @@
 # URL-shortener
 
-<p>this is a small learning project. This backend do simple things. Takes a long url then shorten it and then redirect to the long url if request is made ot short url.</p>
+<p>this is a small learning project. This backend do simple things. Takes a long url then shorten it and then redirect to the long url if request is made to short url.</p>
 
 ## Technologies
 - nodejs (express)
