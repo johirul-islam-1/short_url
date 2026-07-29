@@ -27,7 +27,7 @@
 1. The database used in this project is **sqlite** (node:sqlite).
 table name is **url** and the columns are **id**,**shortUrl**,**longUrl**.
 2. When the **/api/shorten** hit, the longUrl is checked if it is in the database or not. 
-    - If not then the last id of the db entry is taken and incremented by 1. And encoded that with base62. This is used as short code. The Base Url is the url of where the backend is hosted (http://localhost:3000). 
+    - If not then the last id of the db row is taken and incremented by 1. And encoded that with base62. This is used as short code. The Base Url is the url of where the backend is hosted (http://localhost:3000). 
     the return value of this api is BaseUrl + "/api/" + shortCode.
     The short code and long url are inserted in the database
     - If found then the shortUrl is returned
