@@ -87,12 +87,13 @@ const redirect = (req,res)=>{
     const id = req.params.id
 
     const shortStmt = db.prepare("SELECT longUrl FROM url WHERE shortCode = ?")
-    const { longUrl } = shortStmt.get(id)
+    const LongUrl  = shortStmt.get(id)
 
-    console.log(longUrl)
+    // console.log(longUrl)
 
 
-    if(longUrl){
+    if(LongUrl){
+        const { longUrl } = LongUrl
         console.log("redirect: shortUrl found, redirecting")
         if(!/^https?:\/\//i.test(longUrl)){
             const url = "https://"+longUrl
