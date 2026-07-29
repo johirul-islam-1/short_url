@@ -6,6 +6,29 @@
 - nodejs (express)
 - database: node:sqlite
 
+## How to Run
+
+1. clone the repo
+2. Go to the root of the repo
+3. run this command to start the server: 
+    ```
+    node backend/src/server.js
+    ```
+4. **/api/shorten**: Method is POST. The json body will be like following example: 
+    ```
+    {
+        "longUrl":"https://www.youtube.com"
+    }
+    ```
+    In the response will be like:
+    ```
+    {
+        "shortUrl": "http://localhost:3000/api/2"
+    }
+    ```
+    here in **/api/2** , 2 is the short code
+5. **/api/:id** : "http://localhost:3000/api/2" this url will be redirected to the main long url ("https://www.youtube.com")
+
 ## API's
 
 1. **/api/shorten** : This is a POST request. In the body of request the json key is longUrl and the value is the url.
