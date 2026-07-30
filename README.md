@@ -9,6 +9,7 @@
 ## How to Run
 
 1. clone the repo
+2. make a .env using .env.example
 2. Go to the root of the repo
 3. run this command to start the server: 
     ```
