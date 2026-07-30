@@ -92,7 +92,7 @@ const shortenUrl = (req, res) => {
         store(LongUrl,shortCode)
 
 
-        const fullUrl = process.env.BASE_URL + "/api/redirect" + shortCode
+        const fullUrl = process.env.BASE_URL + "/api/" + shortCode
         return res.status(200).json({
             "shortUrl": fullUrl
         })
@@ -286,7 +286,7 @@ const AnalyticsClickCountApi = (req,res)=>{
     const shortCode = req.params.urlId
     const timeline = req.params.timeline
 
-    console.log(`/api/analytics/clickCount/:urlId/:timeline route hit. shortCode: ${shortCode}, timeline: ${timeline}`)
+    console.log(`/api//:urlId/analytics/clickCount/:timeline route hit. shortCode: ${shortCode}, timeline: ${timeline}`)
 
 
     const url = db.prepare(`
@@ -305,7 +305,14 @@ const AnalyticsClickCountApi = (req,res)=>{
         return res.status(400).json({message:"Invalid timeline. Use day, week, month, or year"})
     }
 
+    let totalClickCount = 0
+    for(const item of clickCountAnalytic){
+        totalClickCount = totalClickCount + item.totalClicks
+    }
+
+
     return res.status(200).json({
+        totalClick: totalClickCount,
         data: clickCountAnalytic
     })
 }
@@ -313,8 +320,8 @@ const AnalyticsClickCountApi = (req,res)=>{
 
 
 app.post("/api/shorten", shortenUrl)
-app.get("/api/redirect/:id", redirect)
-app.get("/api/analytics/clickCount/:urlId/:timeline",AnalyticsClickCountApi)
+app.get("/api/:id", redirect)
+app.get("/api/:urlId/analytics/clickCount/:timeline",AnalyticsClickCountApi)
 
 
 
