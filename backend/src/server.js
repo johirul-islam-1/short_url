@@ -1,8 +1,9 @@
 import express, { application } from "express"
 import { DatabaseSync } from "node:sqlite"
-import path from "node:path"
+import path, { format } from "node:path"
 import base62 from "base62"
 import "dotenv/config"
+import { time } from "node:console"
 
 
 const app = express();
@@ -142,14 +143,178 @@ const recordRedirectedClicks = (url_id) => {
 
 }
 
+const timelines = {
+    day: {
+        start: "start of day",
+        offset: "+0 day",
+        end: "+1 day",
+        unit: "hour",
+        formats: "%H"
+    },
+
+    week: {
+        start: "start of day",
+        offset: "-6 days",
+        end: "+1 day",
+        unit: "day",
+        formats: "%Y-%m-%d"
+    },
+
+    month: {
+        start: "start of month",
+        offset: "+0 month",
+        end: "+1 month",
+        unit: "day",
+        formats: "%Y-%m-%d"
+    },
+
+    year: {
+        start: "start of year",
+        offset: "+0 year",
+        end: "+1 year",
+        unit: "month",
+        formats: "%Y-%m"
+    }
+}
+
+const clickCountAnalytics = (url_id, timeline) => {
+
+    const config = timelines[timeline]
+
+    if(!config){
+        return null
+    }
+    
+    const dbAnalytics =  db
+                        .prepare(`
+                            SELECT 
+                                strftime('${config.formats}', clickedAt) AS ${config.unit},
+                                COUNT(*) AS totalClicks
+                            FROM clicks
+
+                            WHERE urlId = ?
+                                AND clickedAt >= datetime('now','${config.start}','${config.offset}')
+                                AND clickedAt < datetime('now','${config.start}','${config.end}')
+                            GROUP BY strftime('${config.formats}', clickedAt)
+                            ORDER BY ${config.unit}
+                        `)
+                        .all(url_id)
+    
+    
+    const fullAnalytics = fullAnalysisWithMissingValues(dbAnalytics,timeline)
+
+    return fullAnalytics
+}
 
 
+const fullAnalysisWithMissingValues = (dbAnalytics, timeline)=>{
+    const config = timelines[timeline]
+
+    const counts = new Map(
+        dbAnalytics.map((row)=>[
+            row[config.unit],// if key comes form var then use []
+            Number(row.totalClicks) // if key is known then use .
+        ])
+    )
+
+    const result = []
+    const now = new Date()
+
+    if(timeline === "day") {
+        for(let hour = 0; hour < 24; hour++){
+            const key = String(hour).padStart(2,"0")
+
+            result.push({
+                hour: key,
+                totalClicks: counts.get(key) ?? 0
+            })
+        }
+    }
+
+    else if(timeline === "week") {
+        
+
+        for(let day = 6; day>=0; day--){
+            const date = new Date(now)
+
+            date.setUTCDate(date.getUTCDate() - day)
+
+            const key = date.toISOString().slice(0,10)
+
+            result.push({
+                day: key,
+                totalClicks: counts.get(key) ?? 0
+            })
+        }
+    }
+
+    else if(timeline === "month"){
+        const year = now.getUTCFullYear()
+        const month = now.getUTCMonth()
+
+        const daysInMonth = new Date(Date.UTC(year,month+1,0)).getUTCDate()
+
+        for(let day = 1;day <= daysInMonth; day++){
+            const key = [year,String(month+1).padStart(2,"0"),String(day).padStart(2,"0")].join("-")
+
+            result.push({
+                day: key,
+                totalClicks: counts.get(key) ?? 0
+            })
+        }
+    }
+
+    else if(timeline === "year") {
+        const year = now.getUTCFullYear()
+
+        for(let month = 1; month <= 12; month++){
+            const key = [year,String(month).padStart(2,"0")].join("-")
+
+            result.push({
+                month: key,
+                totalClicks: counts.get(key) ?? 0
+            })
+        }
+    }
+
+    return result
+}
+
+
+const AnalyticsClickCountApi = (req,res)=>{
+
+    const shortCode = req.params.urlId
+    const timeline = req.params.timeline
+
+    console.log(`/api/analytics/clickCount/:urlId/:timeline route hit. shortCode: ${shortCode}, timeline: ${timeline}`)
+
+
+    const url = db.prepare(`
+        SELECT id FROM url where shortCode = ?
+    `).get(shortCode)
+
+    if(!url) {
+        return res.status(404).json({
+        message: "Url not found"
+        });
+    }
+
+    const clickCountAnalytic = clickCountAnalytics(shortCode, timeline)
+
+    if(!clickCountAnalytic){
+        return res.status(400).json({message:"Invalid timeline. Use day, week, month, or year"})
+    }
+
+    return res.status(200).json({
+        data: clickCountAnalytic
+    })
+}
 
 
 
 app.post("/api/shorten", shortenUrl)
-app.get("/api/:id", redirect)
-
+app.get("/api/redirect/:id", redirect)
+app.get("/api/analytics/clickCount/:urlId/:timeline",AnalyticsClickCountApi)
 
 
 
