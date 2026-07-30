@@ -19,8 +19,23 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS url(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         shortCode TEXT NOT NULL UNIQUE,
-        longUrl TEXT NOT NULL
-    )
+        longUrl TEXT NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS clicks(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        urlId INTEGER NOT NULL,
+        clickedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+
+        FOREIGN KEY (urlId)
+            REFERENCES url(id)
+            ON DELETE CASCADE 
+    );
+
+    CREATE INDEX IF NOT EXISTS index_clicks_urlId_clickedAt ON clicks (urlId, clickedAt)
 `)
 
 console.log("db created")
@@ -95,6 +110,9 @@ const redirect = (req,res)=>{
     if(LongUrl){
         const { longUrl } = LongUrl
         console.log("redirect: shortUrl found, redirecting")
+
+        recordRedirectedClicks(id)
+
         if(!/^https?:\/\//i.test(longUrl)){
             const url = "https://"+longUrl
             return res.redirect(302,url)
@@ -113,16 +131,34 @@ const redirect = (req,res)=>{
 
 }
 
+
+
+
+
+const recordRedirectedClicks = (url_id) => {
+    db
+    .prepare(`INSERT INTO clicks (urlId) VALUES (?)`)
+    .run(url_id)
+
+}
+
+
+
+
+
+
 app.post("/api/shorten", shortenUrl)
 app.get("/api/:id", redirect)
 
 
-// const stmt = db.prepare(`
-//     SELECT * FROM url
-// `)
-// console.log(stmt.get())
 
-// console.log(process.env.BASE_URL)
+
+console.log(db.prepare(`SELECT * FROM url`).all())
+console.log(db.prepare(`SELECT * FROM clicks`).all())
+
+
+
+console.log(process.env.BASE_URL)
 
 
 app.listen(PORT, ()=>{console.log(`server is running on port ${PORT}`)})
