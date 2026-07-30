@@ -92,7 +92,7 @@ const shortenUrl = (req, res) => {
         store(LongUrl,shortCode)
 
 
-        const fullUrl = process.env.BASE_URL + "/api/" + shortCode
+        const fullUrl = process.env.BASE_URL + "/api/redirect" + shortCode
         return res.status(200).json({
             "shortUrl": fullUrl
         })

@@ -23,11 +23,11 @@
     In the response will be like:
     ```
     {
-        "shortUrl": "http://localhost:3000/api/2"
+        "shortUrl": "http://localhost:3000/api/redirect/2"
     }
     ```
     here in **/api/2** , 2 is the short code
-5. **/api/:id** : "http://localhost:3000/api/2" this url will be redirected to the main long url ("https://www.youtube.com")
+5. **/api/redirect/:id** : "http://localhost:3000/api/redirect/2" this url will be redirected to the main long url ("https://www.youtube.com")
 
 ## API's
 
@@ -55,7 +55,7 @@ table name is **url** and the columns are **id**,**shortUrl**,**longUrl**.
     The short code and long url are inserted in the database
     - If found then the shortUrl is returned
 
-3. When **/api/:id** (http://localhost:3000/api/2) route hits, the db query is made if the shortcode 2 exists. 
+3. When **/api/redirect/:id** (http://localhost:3000/api/redirect/2) route hits, the db query is made if the shortcode 2 exists. 
     - if yes, then it is redirected to the longUrl(real website)
     - else a 404 not found message is sent.
 
