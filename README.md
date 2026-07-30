@@ -11,11 +11,12 @@
 1. clone the repo
 2. Go to the root of the repo
 3. make a .env using .env.example
-4. run this command to start the server: 
+4. install packages
+5. run this command to start the server: 
     ```
     node backend/src/server.js
     ```
-5. **/api/shorten**: Method is POST. The json body will be like following example: 
+6. **/api/shorten**: Method is POST. The json body will be like following example: 
     ```
     {
         "longUrl":"https://www.youtube.com"
@@ -28,9 +29,9 @@
     }
     ```
     here in **/api/2** , 2 is the short code
-6. **/api/:id** : "http://localhost:3000/api/2" this url will be redirected to the main long url ("https://www.youtube.com")
+7. **/api/:id** : "http://localhost:3000/api/2" this url will be redirected to the main long url ("https://www.youtube.com")
 
-7. **/api/:urlId/analytics/clickCount/:timeline**: "http://localhost:3000/api/1/analytics/clickCount/day" this route is for how many time a link is visited. urlId here is the alias for shortcode. timeline value is as follows: day, week, month, year. 
+8. **/api/:urlId/analytics/clickCount/:timeline**: "http://localhost:3000/api/1/analytics/clickCount/day" this route is for how many time a link is visited. urlId here is the alias for shortcode. timeline value is as follows: day, week, month, year. 
 
 ## API's
 
