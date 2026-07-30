@@ -325,12 +325,12 @@ app.get("/api/:urlId/analytics/clickCount/:timeline",AnalyticsClickCountApi)
 
 
 
-console.log(db.prepare(`SELECT * FROM url`).all())
-console.log(db.prepare(`SELECT * FROM clicks`).all())
+// console.log(db.prepare(`SELECT * FROM url`).all())
+// console.log(db.prepare(`SELECT * FROM clicks`).all())
 
 
 
-console.log(process.env.BASE_URL)
+// console.log(process.env.BASE_URL)
 
 
 app.listen(PORT, ()=>{console.log(`server is running on port ${PORT}`)})
